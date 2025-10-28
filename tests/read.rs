@@ -12,7 +12,7 @@ fn read_doc() {
     } else {
         println!("Book title not found");
     }
-    println!("Num Pages: {}\n", doc.get_num_pages());
+    println!("Num Pages: {}\n", doc.get_num_chapters());
 
     {
         println!("resources:\n");

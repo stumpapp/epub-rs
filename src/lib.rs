@@ -73,7 +73,7 @@
 //! use epub::doc::EpubDoc;
 //! let doc = EpubDoc::new("test.epub");
 //! let mut doc = doc.unwrap();
-//! assert_eq!(0, doc.get_current_page());
+//! assert_eq!(0, doc.get_current_chapter());
 //! assert_eq!("application/xhtml+xml", doc.get_current_mime().unwrap());
 //!
 //! doc.go_next();
@@ -83,13 +83,13 @@
 //! doc.go_prev();
 //! assert_eq!("000.xhtml", doc.get_current_id().unwrap());
 //!
-//! doc.set_current_page(2);
+//! doc.set_current_chapter(2);
 //! assert_eq!("001.xhtml", doc.get_current_id().unwrap());
-//! assert_eq!(2, doc.get_current_page());
-//! assert!(!doc.set_current_page(50));
+//! assert_eq!(2, doc.get_current_chapter());
+//! assert!(!doc.set_current_chapter(50));
 //!
-//! // doc.get_current() will return a Vec<u8> with the current page content
-//! // doc.get_current_str() will return a String with the current page content
+//! // doc.get_current() will return a Vec<u8> with the current chapter content
+//! // doc.get_current_str() will return a String with the current chapter content
 //! ```
 //!
 //! ## Getting the cover
