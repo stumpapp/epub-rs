@@ -9,13 +9,13 @@ keywords = ["epub", "ebook"]
 license = "GPL-3.0"
 name = "epub"
 repository = "https://github.com/danigm/epub-rs.git"
-version = "2.1.4"
-edition = "2021"
+version = "2.1.5"
+edition = "2024"
 
 [dependencies]
-xml-rs = "0.8.26"
-percent-encoding = "2.3.1"
-thiserror = "2.0.12"
+xml-rs = "1.0.0"
+percent-encoding = "2.3.2"
+thiserror = "2.0.17"
 
 [features]
 mock = []
@@ -28,7 +28,7 @@ features = [
 ]
 
 [dependencies.regex]
-version = "1.11.1"
+version = "1.12.2"
 default-features = false
 # regex currently requires the standard library, you must re-enable it.
 features = [
