@@ -964,6 +964,12 @@ impl<R: Read + Seek> EpubDoc<R> {
 
     fn fill_toc(&mut self, id: &str) -> Result<(), DocError> {
         let toc_res = self.resources.get(id).ok_or(DocError::InvalidEpub)?; // this should be turned into it's own error type, but
+        let toc_base_path = self.resources.iter().find_map(|(resource_id, resource)| {
+            match id == resource_id {
+                true => resource.path.parent(),
+                false => None,
+            }
+        }).ok_or(DocError::InvalidEpub)?;
 
         let container = self.archive.get_entry(&toc_res.path)?;
         let root = xmlutils::XMLReader::parse(container.as_slice())?;
@@ -984,14 +990,14 @@ impl<R: Read + Seek> EpubDoc<R> {
             .find("navMap")
             .ok_or_else(|| XMLError::AttrNotFound("navMap".into()))?;
 
-        self.toc.append(&mut self.get_navpoints(&mapnode.borrow()));
+        self.toc.append(&mut self.get_navpoints(toc_base_path, &mapnode.borrow()));
         self.toc.sort();
 
         Ok(())
     }
 
     /// Recursively extract all navpoints from a node.
-    fn get_navpoints(&self, parent: &xmlutils::XMLNode) -> Vec<NavPoint> {
+    fn get_navpoints(&self, ncx_base_path: &Path, parent: &xmlutils::XMLNode) -> Vec<NavPoint> {
         let mut navpoints = Vec::new();
 
         // TODO: parse metadata (dtb:totalPageCount, dtb:depth, dtb:maxPageNumber)
@@ -1006,7 +1012,7 @@ impl<R: Read + Seek> EpubDoc<R> {
                 .and_then(|n| n.parse::<usize>().ok());
             let content = item
                 .find("content")
-                .and_then(|c| c.borrow().get_attr("src").map(|p| self.root_base.join(p)));
+                .and_then(|c| c.borrow().get_attr("src").map(|p| ncx_base_path.join(p)));
 
             let label = item.find("navLabel").and_then(|l| {
                 l.borrow()
@@ -1019,7 +1025,7 @@ impl<R: Read + Seek> EpubDoc<R> {
                 let navpoint = NavPoint {
                     label: label_text.clone(),
                     content: content_path.clone(),
-                    children: self.get_navpoints(&item),
+                    children: self.get_navpoints(ncx_base_path, &item),
                     play_order: order,
                 };
                 navpoints.push(navpoint);
