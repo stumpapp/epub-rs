@@ -964,12 +964,7 @@ impl<R: Read + Seek> EpubDoc<R> {
 
     fn fill_toc(&mut self, id: &str) -> Result<(), DocError> {
         let toc_res = self.resources.get(id).ok_or(DocError::InvalidEpub)?; // this should be turned into it's own error type, but
-        let toc_base_path = self.resources.iter().find_map(|(resource_id, resource)| {
-            match id == resource_id {
-                true => resource.path.parent(),
-                false => None,
-            }
-        }).ok_or(DocError::InvalidEpub)?;
+        let toc_base_path = toc_res.path.parent().ok_or(DocError::InvalidEpub)?;
 
         let container = self.archive.get_entry(&toc_res.path)?;
         let root = xmlutils::XMLReader::parse(container.as_slice())?;
