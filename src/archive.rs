@@ -116,4 +116,27 @@ impl<R: Read + Seek> EpubArchive<R> {
         let content = self.get_entry("META-INF/container.xml")?;
         Ok(content)
     }
+
+    /// Returns the compressed size of a file in the archive
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the name doesn't exist in the zip archive.
+    pub fn get_entry_compressed_size<P: AsRef<Path>>(
+        &mut self,
+        name: P,
+    ) -> Result<u64, ArchiveError> {
+        let name = name.as_ref().to_str().ok_or(ArchiveError::PathUtf8)?;
+
+        match self.zip.by_name(name) {
+            Ok(zipfile) => return Ok(zipfile.compressed_size()),
+            Err(zip::result::ZipError::FileNotFound) => {}
+            Err(e) => return Err(e.into()),
+        }
+
+        // try percent encoding
+        let name = percent_encoding::percent_decode(name.as_bytes()).decode_utf8()?;
+        let zipfile = self.zip.by_name(&name)?;
+        Ok(zipfile.compressed_size())
+    }
 }

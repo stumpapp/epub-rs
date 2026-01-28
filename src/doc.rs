@@ -430,6 +430,22 @@ impl<R: Read + Seek> EpubDoc<R> {
         Some((content, mime))
     }
 
+    /// Returns the compressed size of a resource by full path in the epub archive  
+    ///  
+    /// Returns [`None`] if the path doesn't exist in the epub  
+    pub fn get_resource_compressed_size_by_path<P: AsRef<Path>>(&mut self, path: P) -> Option<u64> {
+        self.archive.get_entry_compressed_size(path).ok()
+    }
+
+    /// Returns the compressed size of a resource by the id defined in the spine  
+    ///  
+    /// Returns [`None`] if the id doesn't exist in the epub  
+    pub fn get_resource_compressed_size(&mut self, id: &str) -> Option<u64> {
+        let ResourceItem { path, .. } = self.resources.get(id)?;
+        let path = path.clone();
+        self.get_resource_compressed_size_by_path(path)
+    }
+
     /// Returns the resource mime-type
     ///
     /// # Examples
